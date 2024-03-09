@@ -2,6 +2,54 @@ realsenseコンテナの実行
 
 ./run.sh dustynv/realsense:r35.3.1
 
+# Transformerを用いたセンサーフュージョンの実験
+
+このプロジェクトでは、異なるセンサーからのデータを統合し、運転行動を予測するためのモデルを構築することを目指します。具体的には、単眼カメラ、深度センサー、IMU（慣性計測装置）からのデータを統合し、Transformerを用いて意味のある情報を抽出し、最終的な運転指示（ステアリング、スロットル）を予測するモデルを構築します。
+
+# ディレクトリ構成
+
+```
+.
+├── __pycache__/
+├── .vscode/
+│   └── settings.json
+├── datasets/
+│   ├── __pycache__/
+│   ├── custom_dataset.py
+│   └── sensor_data_dataset.py
+├── models/
+│   ├── __init__.py
+│   ├── __pycache__/
+│   ├── base_model.py
+│   ├── data_utils.py
+│   ├── depth_model.py
+│   ├── imu_model.py
+│   └── sensor_fusion_transformer.py
+├── notebooks/
+│   └── SensorFusionExperimentV1.ipynb
+├── realsense/
+│   ├── realsense_data.py
+│   └── realsense_test.py
+├── utils/
+│   ├── __init__.py
+│   ├── __pycache__/
+│   ├── data_generation.py
+│   └── data_utils.py
+├── readme.md
+├── requirements.txt
+└── train.py
+```
+
+
++ datasets/: データセットに関連するコードを格納します。
++ models/: モデルの定義やユーティリティ関数を格納します。
++ notebooks/: Jupyterノートブックを格納します。これらは、データ分析やモデルの試行錯誤に使用します。
++ realsense/: RealSenseカメラに関連するコードを格納します。
++ utils/: データ生成やその他のユーティリティ関数を格納します。
++ readme.md: プロジェクトの説明や使用方法を記述します。
++ requirements.txt: プロジェクトで必要なPythonパッケージをリストします。
++ train.py: モデルの訓練を行うメインのスクリプトです。
+
 
 # プロジェクトのディレクトリ構成
 
