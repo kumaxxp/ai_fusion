@@ -102,6 +102,6 @@ for data, targets in test_loader:
     break  # デモのため、最初のバッチのみ表示
 
 # 訓練と評価の実行
-train_model(model, train_loader, criterion, optimizer, num_epochs=10)
+train_model(model, train_loader, test_loader, criterion, optimizer, num_epochs=10)
 evaluate_model(model, test_loader, criterion)
 

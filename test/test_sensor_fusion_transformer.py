@@ -1,5 +1,10 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import torch
 from models.sensor_fusion_transformer import SensorFusionTransformerWithDecisionLayer
+
 
 # モデルの初期化
 feature_size = 512  # 特徴量のサイズ
