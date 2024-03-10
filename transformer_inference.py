@@ -20,7 +20,8 @@ def generate_dummy_data():
 def inference(model, image, depth, imu):
     # データに対する推論を行う
     with torch.no_grad():  # 勾配計算を無効化
-        outputs = model(image, depth, imu)
+        inputs = (image, depth, imu)  # 入力をタプルにパック
+        outputs = model(*inputs)  # アンパックしてモデルに渡す
     return outputs
 
 if __name__ == "__main__":
