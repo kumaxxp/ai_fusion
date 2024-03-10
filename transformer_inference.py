@@ -17,10 +17,10 @@ def generate_dummy_data():
     dummy_imu = torch.rand((1, 6))  # 例: IMUデータ（加速度 + ジャイロスコープ）
     return dummy_image, dummy_depth, dummy_imu
 
-def inference(model, data):
+def inference(model, image, depth, imu):
     # データに対する推論を行う
     with torch.no_grad():  # 勾配計算を無効化
-        outputs = model(data)
+        outputs = model(image, depth, imu)
     return outputs
 
 if __name__ == "__main__":
@@ -31,8 +31,8 @@ if __name__ == "__main__":
     # ダミーデータの生成と推論の実行
     dummy_image, dummy_depth, dummy_imu = generate_dummy_data()
     
-    # 推論の実行（ここでは画像データのみを使用）
-    outputs = inference(model, dummy_image)
+    # 推論の実行（すべてのダミーデータを使用）
+    outputs = inference(model, dummy_image, dummy_depth, dummy_imu)
     
     # 推論結果の表示
     print(outputs)
