@@ -21,34 +21,40 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         model.train()  # モデルを訓練モードに設定
         running_loss = 0.0
         running_acc = 0.0
-        for inputs, targets in train_loader:
+        for image_data, depth_data, imu_data, targets in train_loader:
             optimizer.zero_grad()  # 勾配を0で初期化
-            outputs = model(inputs)  # モデルによる予測
+            outputs = model(image_data, depth_data, imu_data)  # モデルによる予測
             loss = criterion(outputs, targets)  # 損失の計算
             loss.backward()  # 逆伝播
             optimizer.step()  # パラメータの更新
 
-            running_loss += loss.item() * inputs.size(0)
-            running_acc += mean_absolute_error(outputs, targets).item() * inputs.size(0)
+            running_loss += loss.item() * image_data.size(0)
+            running_acc += mean_absolute_error(outputs, targets).item() * image_data.size(0)
         epoch_loss = running_loss / len(train_loader.dataset)
         epoch_acc = running_acc / len(train_loader)
         train_losses.append(epoch_loss)
         train_accuracies.append(epoch_acc)
+
+        # 標準出力にエポック数と訓練データの損失と精度を表示
+        print(f"Epoch {epoch+1}/{num_epochs}")
+        print(f"Train Loss: {epoch_loss:.4f}, Train Acc: {epoch_acc:.4f}")
 
         # 検証データセットでの評価
         model.eval()  # モデルを評価モードに設定
         running_val_loss = 0.0
         running_val_acc = 0.0
         with torch.no_grad():  # 勾配計算を無効化
-            for inputs, targets in val_loader:
-                outputs = model(inputs)
+            for image_data, depth_data, imu_data, targets in val_loader:
+                outputs = model(image_data, depth_data, imu_data)
                 val_loss = criterion(outputs, targets)
-                running_val_loss += val_loss.item() * inputs.size(0)
-                running_val_acc += mean_absolute_error(outputs, targets).item() * inputs.size(0)
+                running_val_loss += val_loss.item() * image_data.size(0)
+                running_val_acc += mean_absolute_error(outputs, targets).item() * image_data.size(0)
         epoch_val_loss = running_val_loss / len(val_loader.dataset)
         epoch_val_acc = running_val_acc / len(val_loader)
         val_losses.append(epoch_val_loss)
         val_accuracies.append(epoch_val_acc)
+
+        print(f"Val Loss: {epoch_val_loss:.4f}, Val Acc: {epoch_val_acc:.4f}")        
 
     # 学習曲線のプロット
     plt.figure(figsize=(12, 4))
