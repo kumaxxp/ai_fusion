@@ -32,6 +32,8 @@ wsl ubuntu22.04を起動して、source ~/myenv/bin/activate を実行して環�
 ├── realsense/
 │   ├── realsense_data.py
 │   └── realsense_test.py
+├── tests/
+│   └── test_sensor_fusion_transformer.py
 ├── utils/
 │   ├── __init__.py
 │   ├── __pycache__/
