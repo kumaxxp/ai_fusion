@@ -8,6 +8,8 @@ realsenseコンテナの実行
 
 # ディレクトリ構成
 
+wsl ubuntu22.04を起動して、source ~/myenv/bin/activate を実行して環境をセットする。
+
 ```
 .
 ├── __pycache__/
