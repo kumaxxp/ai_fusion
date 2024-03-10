@@ -8,9 +8,9 @@ from models.sensor_fusion_transformer import SensorFusionTransformerWithDecision
 
 import matplotlib.pyplot as plt
 
-def accuracy(outputs, targets):
-    _, preds = torch.max(outputs, dim=1)
-    return torch.tensor(torch.sum(preds == targets).item() / len(preds))
+def mean_absolute_error(outputs, targets):
+    return torch.mean(torch.abs(outputs - targets))
+
 
 def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs=10):
     train_losses = []
@@ -29,7 +29,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             optimizer.step()  # パラメータの更新
 
             running_loss += loss.item() * inputs.size(0)
-            running_acc += accuracy(outputs, targets)
+            running_acc += mean_absolute_error(outputs, targets).item() * inputs.size(0)
         epoch_loss = running_loss / len(train_loader.dataset)
         epoch_acc = running_acc / len(train_loader)
         train_losses.append(epoch_loss)
@@ -44,7 +44,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 outputs = model(inputs)
                 val_loss = criterion(outputs, targets)
                 running_val_loss += val_loss.item() * inputs.size(0)
-                running_val_acc += accuracy(outputs, targets)
+                running_val_acc += mean_absolute_error(outputs, targets).item() * inputs.size(0)
         epoch_val_loss = running_val_loss / len(val_loader.dataset)
         epoch_val_acc = running_val_acc / len(val_loader)
         val_losses.append(epoch_val_loss)
@@ -60,31 +60,38 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
     plt.legend()
 
     plt.subplot(1, 2, 2)
-    plt.plot(train_accuracies, label='Train Accuracy')
-    plt.plot(val_accuracies, label='Validation Accuracy')
+    plt.plot(train_accuracies, label='Train mean_absolute_error')
+    plt.plot(val_accuracies, label='Validation mean_absolute_error')
     plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
+    plt.ylabel('mean_absolute_error')
     plt.legend()
     plt.show()
     
 def evaluate_model(model, test_loader, criterion):
     model.eval()  # モデルを評価モードに設定
     running_loss = 0.0
+    running_mae = 0.0
     with torch.no_grad():  # 勾配計算を無効化
         for inputs, targets in test_loader:
             outputs = model(inputs)
             loss = criterion(outputs, targets)
+
             running_loss += loss.item() * inputs.size(0)
+            running_mae += mean_absolute_error(outputs, targets).item() * inputs.size(0)
+
     final_loss = running_loss / len(test_loader.dataset)
-    print(f'Test Loss: {final_loss:.4f}')
+    final_mae = running_mae / len(test_loader.dataset)
+    print(f'Test Loss: {final_loss:.4f}, Test MAE: {final_mae:.4f}')
 
 
 # ダミーデータでの動作確認
 train_dataset = CustomDataset(size=1000, seq_length=32, feature_size=512)
+val_dataset = CustomDataset(size=200, seq_length=32, feature_size=512)
 test_dataset = CustomDataset(size=200, seq_length=32, feature_size=512)
 
 # DataLoaderのインスタンス化
 train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=10, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=10, shuffle=False)
 
 # モデル、損失関数、最適化アルゴリズムの設定
@@ -102,6 +109,8 @@ for data, targets in test_loader:
     break  # デモのため、最初のバッチのみ表示
 
 # 訓練と評価の実行
-train_model(model, train_loader, test_loader, criterion, optimizer, num_epochs=10)
+train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs=10)
 evaluate_model(model, test_loader, criterion)
 
+# モデルの保存
+torch.save(model.state_dict(), './model.pth')
